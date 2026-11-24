@@ -1,0 +1,3 @@
+-- Initial migration is generated from prisma/schema.prisma.
+-- Run `npx prisma migrate dev --name init` during local development to regenerate
+-- provider-specific SQL for your installed Prisma version.
