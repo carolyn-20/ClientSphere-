@@ -25,6 +25,19 @@ app.post("/api/auth/login", async (req, res) => {
   const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || "dev-only-secret", { expiresIn });
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
+
+app.post("/api/auth/register", async (req, res) => {
+  const parsed = z.object({ name: z.string().min(2).max(100), email: z.string().email(), password: z.string().min(8) }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Enter your name, a valid email, and a password with at least 8 characters." });
+  const email = parsed.data.email.toLowerCase();
+  const exists = await prisma.user.findUnique({ where: { email } });
+  if (exists) return res.status(409).json({ error: "An account with this email already exists. Sign in instead." });
+  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+  const user = await prisma.user.create({ data: { name: parsed.data.name, email, passwordHash } });
+  const expiresIn = (process.env.JWT_EXPIRES_IN || "8h") as jwt.SignOptions["expiresIn"];
+  const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || "dev-only-secret", { expiresIn });
+  res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+});
 app.use("/api", authenticate);
 
 app.get("/api/me", (req, res) => res.json({ user: req.user }));
