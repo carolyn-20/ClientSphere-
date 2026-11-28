@@ -1,1 +1,2 @@
-module.exports = { output: "standalone" };
+/** @type {import('next').NextConfig} */
+module.exports = {};
