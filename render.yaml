@@ -13,9 +13,6 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
-      - key: WEB_ORIGIN
-        value: "*"
-
   - type: web
     name: clientsphere-web
     runtime: docker
